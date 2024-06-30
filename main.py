@@ -1,10 +1,35 @@
 from typing import List
 
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import HTMLResponse
+from fastapi.staticfiles import StaticFiles
 
 from models import Email
 
 app = FastAPI()
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
+html = f"""
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Email REST API</title>
+        <link rel="icon" href="/static/favicon.ico" type="image/x-icon" />
+    </head>
+    <body>
+        <div class="bg-gray-200 p-4 rounded-lg shadow-lg">
+            <h1>REST API in Serverless Environment</h1>
+            <h2> Fetch emails from API</h2>
+            <a href="/api/emails">Get emails from API</a>
+            <p>Click Below links to interact with API endpoints</p>
+            <ul>
+                <li><a href="/docs">/docs</a></li>
+                <li><a href="/redoc">/redoc</a></li>
+            </ul>
+        </div>
+    </body>
+</html>
+"""
 
 db: List[Email] = [
     Email(receiver_email="demo@gmail.com", subject="Demo", body_text="Hello world, how are you"),
@@ -14,7 +39,7 @@ db: List[Email] = [
 
 @app.get("/")
 async def root():
-    return {"REST API": "go to /api/emails to fetch emails", "endpoints": "go to /docs for interactive API docs"}
+    return HTMLResponse(html)
 
 
 @app.get("/api/emails")
